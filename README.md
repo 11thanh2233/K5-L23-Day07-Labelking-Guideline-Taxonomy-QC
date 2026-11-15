@@ -14,15 +14,31 @@ chứa nhiều tình huống mà v0 không nói tới. Việc của nhóm là **
 
 1. Một người **fork** repo này thành **repo public** của nhóm; mời các bạn còn lại làm collaborator
    (Settings → Collaborators). Mỗi người `git clone` về máy.
-2. Đọc **[docs/LAB_GUIDE.md](docs/LAB_GUIDE.md)** (các pha làm việc, lệnh, thời lượng gợi ý).
-3. Cài đặt CVAT: **[docs/CVAT_SETUP.md](docs/CVAT_SETUP.md)**. Cần nhớ công thức: **[docs/QC_CHEATSHEET.md](docs/QC_CHEATSHEET.md)**.
+2. Đọc **[GUIDE.md](GUIDE.md)** (các pha làm việc, lệnh, thời lượng) và **[RULES.md](RULES.md)**.
+3. Đặt tên repo theo [SUBMISSION.md](SUBMISSION.md), điền [TEAM.md](TEAM.md).
 4. Python 3.9+ và `pip install -r requirements.txt`.
+
+## Tài liệu hướng dẫn
+
+| Bạn cần tìm | Tài liệu |
+|---|---|
+| Các pha làm việc, lệnh chạy | [GUIDE.md](GUIDE.md) |
+| Mốc tiến độ trong 4 giờ | [CHECKPOINTS.md](CHECKPOINTS.md) |
+| Quy tắc (độc lập, AI, số liệu trung thực) | [RULES.md](RULES.md) |
+| Tiêu chí chấm điểm (100 điểm) | [RUBRIC.md](RUBRIC.md) |
+| Cách nộp, tên repo, checklist | [SUBMISSION.md](SUBMISSION.md) |
+| Thông tin nhóm | [TEAM.md](TEAM.md) |
+| Dùng CVAT | [docs/CVAT_SETUP.md](docs/CVAT_SETUP.md) |
+| Công thức, ngưỡng, cây quyết định QC | [docs/QC_CHEATSHEET.md](docs/QC_CHEATSHEET.md) |
+| Mẫu báo cáo QC, ghi chú cá nhân | [docs/QC_REPORT_TEMPLATE.md](docs/QC_REPORT_TEMPLATE.md), [docs/INDIVIDUAL_NOTE_TEMPLATE.md](docs/INDIVIDUAL_NOTE_TEMPLATE.md) |
+| Chi tiết các script | [scripts/README.md](scripts/README.md) |
 
 ## Quy tắc nộp bài
 
 - Repo **public**, có **commit của mọi thành viên** (mỗi người commit file của chính mình bằng tài khoản Git của mình).
 - Tiêu đề README (dòng đầu) liệt kê **MSHV - Họ và tên** của mọi thành viên.
 - Làm **độc lập** ở Pha 1 và Pha 3: không xem guideline/nhãn của nhau trước khi tới bước họp.
+- Mỗi thành viên có ghi chú cá nhân `submission/individual_notes/<MSHV>_<HoTen>.md`.
 - Trước khi nộp chạy `python scripts/check_submission.py` cho tới khi hết lỗi.
 
 ## Sản phẩm phải có trong repo
@@ -40,6 +56,8 @@ chứa nhiều tình huống mà v0 không nói tới. Việc của nhóm là **
 | 9 | Tập nhãn **sau calibration** | `submission/qc/labels_calibrated.json` (+ `.csv`) |
 | 10 | Mẫu QC và phiếu kiểm | `submission/qc/qc_sample.csv`, `submission/qc/qc_review.csv` |
 | 11 | **Báo cáo QC** | `submission/qc/QC_REPORT.md` |
+| 12 | Ghi chú cá nhân của từng thành viên | `submission/individual_notes/<MSHV>_<HoTen>.md` |
+| 13 | Thông tin nhóm | `TEAM.md` |
 
 Quy ước tên: `<MSHV>` là mã số học viên (chữ số), `<HoTen>` là họ tên không dấu, viết liền, ví dụ `22001234_NguyenVanA`.
 

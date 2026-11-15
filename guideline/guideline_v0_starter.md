@@ -2,7 +2,7 @@
 
 > **Đây là bản do giảng viên viết nhanh. Nó CHƯA đủ dùng.**
 > Đừng sửa file này. Hãy copy sang `submission/guidelines/individual/` rồi sửa bản của bạn
-> (xem `docs/LAB_GUIDE.md`, Pha 1).
+> (xem `GUIDE.md`, Pha 1).
 
 - Phiên bản: v0
 - Loại nhãn: bounding box (hộp chữ nhật) trên ảnh đường phố

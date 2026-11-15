@@ -20,6 +20,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SUB = ROOT / "submission"
 errs, warns = [], []
+DEFAULT_RULES = {"min_box_height_px": 20, "iou_thr_large": 0.85, "iou_thr_small": 0.7, "large_px": 50,
+                 "iaa_iou": 0.85, "iaa_class": 0.95, "error_rate_img_max": 0.02, "match_iou": 0.5}
 
 
 def err(m): errs.append(m)
@@ -75,6 +77,26 @@ def main() -> int:
         err("guideline_v1.0_agreed.md giống hệt v0.")
     if not (SUB / "guidelines" / "guideline_v1.1_calibrated.md").exists():
         warn("Chưa có guideline_v1.1_calibrated.md. Nếu calibration không đổi quy tắc nào, hãy nói rõ trong QC_REPORT.md.")
+
+    # ghi chú cá nhân
+    for m in team:
+        if not list((SUB / "individual_notes").glob(f"{m}_*.md")):
+            err(f"Thiếu ghi chú cá nhân của {m}: submission/individual_notes/{m}_<HoTen>.md")
+
+    # TEAM.md
+    tm = ROOT / "TEAM.md"
+    if not tm.exists() or "| 1 | | |" in tm.read_text(encoding="utf8"):
+        err("TEAM.md chưa điền (bảng thành viên còn trống).")
+
+    # ngưỡng không được đổi
+    try:
+        import json
+        rules = json.loads((SUB / "taxonomy.json").read_text(encoding="utf8")).get("rules", {})
+        for k, v in DEFAULT_RULES.items():
+            if rules.get(k) != v:
+                err(f"taxonomy.json: rules.{k} = {rules.get(k)} (mặc định {v}). Không đổi các ngưỡng QC.")
+    except Exception as e:
+        err(f"Không đọc được submission/taxonomy.json: {e}")
 
     # nhãn
     for m in team:
