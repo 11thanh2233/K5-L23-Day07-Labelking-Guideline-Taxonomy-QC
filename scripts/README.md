@@ -6,19 +6,21 @@ Các script đọc lớp/thuộc tính/ngưỡng từ `submission/taxonomy.json`
 
 ## Thứ tự chạy
 
-| # | Pha | Lệnh | Việc làm | Đầu ra |
-|---|---|---|---|---|
-| 1 | Chuẩn bị CVAT | `python scripts/make_cvat_labels.py` | Sinh JSON để dán vào CVAT (Project → Labels → Raw) | `cvat/labels_generated.json` |
-| 2 | Chia ảnh | `python scripts/split_assign.py --members 123,456,789 --copy-images` | Mỗi ảnh K người gán độc lập (K=2; nhóm 5 người → K=3) | `submission/qc/assignment.csv`, `submission/qc/assignments/<MSHV>.txt`, `work/<MSHV>/images/` |
-| 3 | Gán nhãn | (CVAT) | Gán đúng ảnh của mình, **không xem nhãn người khác**; export *COCO 1.0* | `submission/labels/<MSHV>_<HoTen>.json` |
-| 4 | Kiểm trước khi nộp | `python scripts/validate_labels.py --all` | Kiểm tên file, lớp, thuộc tính, box trong ảnh, ảnh đủ/thừa | (in màn hình; exit 1 nếu lỗi) |
-| 5 | So sánh / IAA | `python scripts/qc_compare.py` | Đo IAA, tìm ca bất thường, dựng đồng thuận nháp | `submission/qc/` (xem bảng dưới) |
-| 6 | Xem ca lệch | `python scripts/viz_disagreement.py --images flagged` | Vẽ chồng box từng người | `work/viz/*.png`, `work/viz/_overview.png` |
-| 6b | Gói calibration | `python scripts/prepare_calibration.py` | Copy các ảnh bị cờ + nhãn đồng thuận nháp của riêng chúng để nạp vào CVAT | `work/calib/images/`, `work/calib/consensus_flagged.json` |
-| 7 | Calibration | (họp nhóm + CVAT) | Chốt quy tắc, mỗi quyết định **một dòng**, sửa lại ảnh bị cờ, export COCO | `calibration_decisions.csv`, `labels_calibrated_flagged.json` |
-| 8 | Gộp nhãn cuối | `python scripts/build_final.py` | Ảnh không lệch lấy đồng thuận, ảnh bị cờ lấy bản calibration | `labels_calibrated.json`, `labels_calibrated.csv` |
-| 9 | Lấy mẫu QC | `python scripts/qc_sample.py --n 20 --seed 42` | Mẫu = mọi ca khó + n ảnh ngẫu nhiên; tạo phiếu kiểm | `qc_sample.csv`, `qc_review.csv`, `work/review/*.png` |
-| 10 | Số liệu QC | `python scripts/qc_report.py` | Tính tỉ lệ lỗi, top lỗi, **gợi ý** Hold/Rework/Release | `qc_report_auto.md` |
+| # | Pha | Lệnh | Đầu ra chính |
+|---|---|---|---|
+| 1 | Chuẩn bị CVAT | `python scripts/make_cvat_labels.py` | `cvat/labels_generated.json` (dán vào CVAT: Labels → Raw) |
+| 2 | Chia ảnh | `python scripts/split_assign.py --members 123,456,789 --copy-images` | `assignment.csv`, `assignments/<MSHV>.txt`, `work/<MSHV>/images/` |
+| 3 | Gán nhãn | (CVAT, export COCO 1.0) | `submission/labels/<MSHV>_<HoTen>.json` |
+| 4 | Kiểm nhãn | `python scripts/validate_labels.py --all` | in màn hình; exit 1 nếu lỗi |
+| 5 | So sánh, IAA | `python scripts/qc_compare.py` | `submission/qc/` (bảng dưới) |
+| 6 | Xem ca lệch | `python scripts/viz_disagreement.py --images flagged` | `work/viz/*.png` |
+| 6b | Gói calibration | `python scripts/prepare_calibration.py` | `work/calib/` |
+| 7 | Calibration | (họp + CVAT) | `calibration_decisions.csv`, `labels_calibrated_flagged.json` |
+| 8 | Gộp nhãn cuối | `python scripts/build_final.py` | `labels_calibrated.json/.csv` |
+| 9 | Lấy mẫu QC | `python scripts/qc_sample.py --n 20 --seed 42` | `qc_sample.csv`, `qc_review.csv`, `work/review/*.png` |
+| 10 | Số liệu QC | `python scripts/qc_report.py` | `qc_report_auto.md` |
+
+Lưu ý: bước 2 tự dùng K = 2 người/ảnh (nhóm 5 người: 3). Bước 9: mẫu = mọi ca khó + n ảnh ngẫu nhiên. Bước 10: chỉ **gợi ý** Hold / Rework / Release.
 
 `python scripts/viz_disagreement.py` cũng nhận: `--images all`, `--images img_003.jpg img_010.jpg`, `--source consensus|final`.
 

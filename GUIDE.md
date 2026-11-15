@@ -16,6 +16,20 @@ Pha 6  QC mẫu + báo cáo       (~30')
 Quy tắc làm bài: [RULES.md](RULES.md). Chấm điểm: [RUBRIC.md](RUBRIC.md). Cách nộp: [SUBMISSION.md](SUBMISSION.md). Slide tham khảo: Day 07 (taxonomy, guideline, pilot, IAA, calibration, Release/Hold/Rework).
 Công thức và ngưỡng: [docs/QC_CHEATSHEET.md](docs/QC_CHEATSHEET.md). Công cụ gán nhãn: [docs/CVAT_SETUP.md](docs/CVAT_SETUP.md).
 
+## Tóm tắt một trang
+
+| Pha | Việc | Lệnh chính | Sản phẩm |
+|---|---|---|---|
+| 0 | Fork, clone, cài đặt | `pip install -r requirements.txt` | repo nhóm, `TEAM.md` |
+| 1 | Mỗi người sửa guideline v0 | (đọc 40 ảnh) | `individual/guideline_<MSHV>_<HoTen>.md` |
+| 2 | Họp, thống nhất | `make_cvat_labels.py` | `guideline_v1.0_agreed.md`, `taxonomy.json` |
+| 3 | Chia ảnh, gán độc lập | `split_assign.py`, `validate_labels.py` | `labels/<MSHV>_<HoTen>.json` |
+| 4 | So sánh, đo IAA | `qc_compare.py`, `viz_disagreement.py` | `iaa_summary.md`, `calibration_candidates.csv` |
+| 5 | Calibration | `prepare_calibration.py`, `build_final.py` | `calibration_decisions.csv`, `labels_calibrated.json` |
+| 6 | QC mẫu, báo cáo | `qc_sample.py`, `qc_report.py`, `check_submission.py` | `QC_REPORT.md` |
+
+Chi tiết từng pha ở dưới.
+
 ## Pha 0 — Chuẩn bị (mỗi người, 15 phút)
 
 ```bash

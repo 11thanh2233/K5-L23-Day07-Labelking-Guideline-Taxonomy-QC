@@ -2,16 +2,16 @@
 
 Bài **nhóm 2–5 người**, dự kiến **240 phút**. Các mốc tính từ lúc bắt đầu, là điểm tự kiểm tra tại lớp, **không phải hạn nộp**. Deadline do giảng viên/coach thông báo.
 
-| Mốc | Mục tiêu | Minh chứng / tự kiểm tra |
+| Mốc | Mục tiêu | Tự kiểm tra |
 |---|---|---|
-| 0:15 | **CP0 — Chuẩn bị** | Repo của nhóm đã fork, public, mọi người đã clone; `README.md` có tiêu đề `MSHV - Họ tên` đủ thành viên; `TEAM.md` đã điền; `pip install -r requirements.txt` chạy được. |
-| 0:50 | **CP1 — Guideline cá nhân** | Mỗi người đã push `submission/guidelines/individual/guideline_<MSHV>_<HoTen>.md`: có ca khó theo ảnh (`img_0xx`), quyết định và ngưỡng đo được. Chưa ai xem bản của nhau. |
-| 1:20 | **CP2 — Guideline thống nhất** | `guideline_v1.0_agreed.md` đủ 5 phần; mọi chỗ bất đồng đã chốt kèm lý do; `taxonomy.json` khớp guideline; `python scripts/make_cvat_labels.py` chạy được. |
+| 0:15 | **CP0** Chuẩn bị | Repo public đã fork và clone; `TEAM.md` đã điền; cài được thư viện. |
+| 0:50 | **CP1** Guideline cá nhân | Mỗi người đã push file của mình, có ca khó theo ảnh và ngưỡng đo được. |
+| 1:20 | **CP2** Guideline thống nhất | `guideline_v1.0_agreed.md` đủ 5 phần; `taxonomy.json` khớp; sinh được nhãn CVAT. |
 | 1:30 | Nghỉ | |
-| 2:30 | **CP3 — Chia việc và gán nhãn** | `assignment.csv` đúng K (2; nhóm 5 người là 3); mỗi người đã export `submission/labels/<MSHV>_<HoTen>.json`; `python scripts/validate_labels.py --all` không còn `LỖI`. |
-| 2:50 | **CP4 — So sánh và IAA** | Chạy `qc_compare.py`; đọc `iaa_summary.md` (IoU, % cùng lớp, mẫu số); có `calibration_candidates.csv`; xem ảnh `work/viz/`. Mỗi nhóm bất thường đã đoán nguyên nhân (cùng lệch hay một người lệch). |
-| 3:30 | **CP5 — Calibration** | `calibration_decisions.csv` có **mỗi quyết định một dòng**; `guideline_v1.1_calibrated.md`; `labels_calibrated_flagged.json`; `build_final.py` chạy xong ra `labels_calibrated.json`. |
-| 4:00 | **CP6 — QC và nộp** | `qc_sample.csv`, `qc_review.csv` đã điền, `QC_REPORT.md` có quyết định Release / Hold / Rework; ghi chú cá nhân của mọi người; `python scripts/check_submission.py` hết `LỖI`; đã nộp link. |
+| 2:30 | **CP3** Gán nhãn | `assignment.csv` đúng K; mỗi người đã export nhãn; `validate_labels.py --all` sạch. |
+| 2:50 | **CP4** IAA | Chạy `qc_compare.py`, đọc `iaa_summary.md`, xem ảnh `work/viz/`. |
+| 3:30 | **CP5** Calibration | Mỗi quyết định một dòng; có v1.1; `build_final.py` ra `labels_calibrated.json`. |
+| 4:00 | **CP6** QC và nộp | `QC_REPORT.md` có quyết định; ghi chú cá nhân; `check_submission.py` sạch; đã nộp link. |
 
 ## Chi tiết từng checkpoint
 
