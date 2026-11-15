@@ -10,7 +10,7 @@ Một nhóm **một repo public**: fork repo đề, đổi tên theo mẫu, mờ
 
 Tên nhóm viết không dấu, không khoảng trắng; ghép các phần bằng dấu `-`. Theo hướng dẫn lớp nếu giảng viên đặt quy ước khác.
 
-Điền [TEAM.md](TEAM.md) và tiêu đề `README.md`, rồi nộp link repo lên LMS **https://aithucchien.vinuni.edu.vn** hoặc kênh giảng viên/coach chỉ định (một thành viên nộp, ghi đủ MSHV cả nhóm). Hạn nộp do giảng viên/coach thông báo.
+**Đổi dòng tiêu đề của `README.md`** thành `# Day 07 Lab — Nhóm <Tên>: <MSHV> - <Họ và tên>, …` (đủ mọi thành viên, ví dụ `# Day 07 Lab — Nhóm Alpha: 22001234 - Nguyễn Văn A, 22005678 - Trần Thị B`). Điền [TEAM.md](TEAM.md), rồi nộp link repo lên LMS **https://aithucchien.vinuni.edu.vn** hoặc kênh giảng viên/coach chỉ định (một thành viên nộp, ghi đủ MSHV cả nhóm). Hạn nộp do giảng viên/coach thông báo.
 
 ## Cấu trúc bắt buộc
 
@@ -42,7 +42,7 @@ Quy ước tên: `<MSHV>` là chữ số, `<HoTen>` không dấu viết liền (
 ## Checklist trước khi nộp
 
 - [ ] Repo **public**, tên đúng quy tắc, mở được khi chưa đăng nhập.
-- [ ] Dòng đầu `README.md` liệt kê đủ `MSHV - Họ và tên`; phần "Kết quả tóm tắt" đã điền.
+- [ ] Dòng tiêu đề `README.md` đã đổi, liệt kê đủ `MSHV - Họ và tên`; phần "Kết quả tóm tắt" trong `TEAM.md` đã điền.
 - [ ] `TEAM.md` đã điền, có commit chốt bài.
 - [ ] Mọi thành viên: có guideline cá nhân, file nhãn, ghi chú cá nhân và **ít nhất một commit** của mình.
 - [ ] Mỗi ảnh được ≥ 2 người gán (nhóm 5 người: 3); `python scripts/validate_labels.py --all` sạch.

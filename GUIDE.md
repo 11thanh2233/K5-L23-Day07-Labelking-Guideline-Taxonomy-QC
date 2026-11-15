@@ -26,7 +26,7 @@ git config user.name  "Họ tên của bạn"
 git config user.email "email gắn với tài khoản GitHub của bạn"
 ```
 
-Một người fork repo thành `K4-L23-DAY07-<TenNhom>-GuidelineQC` (public), điền [TEAM.md](TEAM.md) và tiêu đề `README.md`, mời mọi người làm collaborator.
+Một người fork repo thành `K4-L23-DAY07-<TenNhom>-GuidelineQC` (public), điền [TEAM.md](TEAM.md), đổi dòng tiêu đề `README.md` (xem [SUBMISSION.md](SUBMISSION.md)), mời mọi người làm collaborator.
 Cách làm việc chung: **mỗi người chỉ sửa file của mình** (tên file có MSHV) nên không xung đột. Trước khi push: `git pull --rebase`.
 Mỗi thành viên phải có ít nhất một commit mang tên mình.
 
@@ -159,7 +159,7 @@ Với mỗi nhóm bất thường, tự hỏi: **cả hai cùng lệch** (guidel
    Số do script chỉ là **gợi ý**: người kiểm xác nhận quyết định và giải thích.
 5. Nếu quyết định là **Rework**: sửa các lỗi tìm được, cập nhật nhãn, chạy lại bước 1–3 (có thể `--force`) và ghi vòng sau vào báo cáo.
    Rework là kết quả hợp lệ; **điều bị trừ điểm là báo Release trong khi số liệu không đạt.**
-6. Điền "Kết quả tóm tắt" trong `README.md`, rồi:
+6. Điền "Kết quả tóm tắt" trong `TEAM.md`, rồi:
    ```bash
    python scripts/check_submission.py
    ```
