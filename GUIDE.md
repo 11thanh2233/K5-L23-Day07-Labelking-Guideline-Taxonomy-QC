@@ -40,7 +40,7 @@ git config user.name  "Họ tên của bạn"
 git config user.email "email gắn với tài khoản GitHub của bạn"
 ```
 
-Một người fork repo thành `K4-L23-DAY07-<TenNhom>-GuidelineQC` (public), điền [TEAM.md](TEAM.md), đổi dòng tiêu đề `README.md` (xem [SUBMISSION.md](SUBMISSION.md)), mời mọi người làm collaborator.
+Một người fork repo thành `K5-L23-DAY07-<TenNhom>-GuidelineQC` (public), điền [TEAM.md](TEAM.md), đổi dòng tiêu đề `README.md` (xem [SUBMISSION.md](SUBMISSION.md)), mời mọi người làm collaborator.
 Cách làm việc chung: **mỗi người chỉ sửa file của mình** (tên file có MSHV) nên không xung đột. Trước khi push: `git pull --rebase`.
 Mỗi thành viên phải có ít nhất một commit mang tên mình.
 

@@ -6,7 +6,7 @@ Một nhóm **một repo public**: fork repo đề, đổi tên theo mẫu, mờ
 
 | Mẫu tên repo | Ví dụ |
 |---|---|
-| `K4-L23-DAY07-[TenNhom]-GuidelineQC` | `K4-L23-DAY07-Alpha-GuidelineQC` |
+| `K5-L23-DAY07-[TenNhom]-GuidelineQC` | `K5-L23-DAY07-Alpha-GuidelineQC` |
 
 Tên nhóm viết không dấu, không khoảng trắng; ghép các phần bằng dấu `-`. Theo hướng dẫn lớp nếu giảng viên đặt quy ước khác.
 
