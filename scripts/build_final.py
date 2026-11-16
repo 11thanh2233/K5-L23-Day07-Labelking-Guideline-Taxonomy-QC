@@ -5,15 +5,16 @@ import argparse
 import json
 from pathlib import Path
 
-from calibration import CALIBRATION_CONTEXT_PATH, GUIDELINE_CHANGE_PATH, calibration_scope, require_iaa
+from calibration import (CALIBRATION_CONTEXT_PATH, GUIDELINE_CHANGE_PATH, calibration_export_path,
+                         calibration_scope, require_iaa)
 from common import (FINAL_GUIDELINE_PATH, IMAGES_DIR, QC_DIR, ROOT, build_coco, digest, die,
                     final_taxonomy_path, make_ann, read_csv, rel, require_valid_labels, write_csv, xyxy_to_xywh)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--calibrated", type=Path, default=QC_DIR / "labels_calibrated_flagged.json",
-                        help="COCO sau sửa, với đúng tập ảnh trong phạm vi calibration.")
+    parser.add_argument("--calibrated", type=Path,
+                        help="COCO sau sửa có đúng tên phiên bản do prepare_calibration.py in ra.")
     args = parser.parse_args()
     try:
         require_iaa()
@@ -25,11 +26,12 @@ def main() -> None:
         die("Ảnh đồng thuận không khớp lô đã phân công.")
     corrected = None
     if scope:
-        corrected_path = args.calibrated.resolve()
-        if not corrected_path.is_relative_to(QC_DIR.resolve()):
-            die("Lưu COCO sau sửa trong submission/qc/ để gói bàn giao có thể mở lại.")
-        if corrected_path in {(QC_DIR / name).resolve() for name in ("consensus_draft.json", "labels_calibrated.json")}:
-            die("Dùng file export sau sửa riêng, ví dụ labels_calibrated_flagged.json.")
+        expected = calibration_export_path(scope)
+        corrected_path = (args.calibrated or expected).resolve()
+        if not corrected_path.is_relative_to(QC_DIR.resolve()) or corrected_path.name != expected.name:
+            die(f"COCO sau sửa không khớp phiên bản hiện tại. Dùng {rel(expected)}.")
+        if not corrected_path.is_file():
+            die(f"Thiếu COCO sau sửa: {rel(expected)}. Chạy prepare_calibration.py để xem phạm vi.")
         corrected = require_valid_labels(corrected_path, tax)
         if set(corrected.images) != scope:
             die(f"COCO sau sửa thiếu {sorted(scope - corrected.images.keys())}, "
@@ -70,7 +72,7 @@ def main() -> None:
         FINAL_GUIDELINE_PATH, GUIDELINE_CHANGE_PATH, final_taxonomy_path(), attribution,
     ]
     if corrected:
-        inputs.append(args.calibrated)
+        inputs.append(corrected_path)
     manifest = {
         "intended_use": "Thực hành đặc tả và QC nhãn 2D trong Day 07.",
         "limitations": "Tập ảnh tuyển chọn để luyện ca biên; độ đại diện cho dữ liệu vận hành chưa được đánh giá.",

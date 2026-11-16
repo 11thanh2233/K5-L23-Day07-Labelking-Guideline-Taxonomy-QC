@@ -1,6 +1,6 @@
 # Báo cáo QC — <<TÊN NHÓM>>
 
-Copy vào `submission/qc/QC_REPORT.md`. Thay các chỗ `<<...>>` và điền vòng QC của bản nhãn muốn bàn giao.
+Copy vào `submission/qc/QC_REPORT.md`. Giữ tên trường trong các dòng gạch đầu dòng. Thay các chỗ `<<...>>` và điền vòng QC của bản nhãn muốn bàn giao.
 
 ## 1. Mục đích, dữ liệu và phiên bản
 

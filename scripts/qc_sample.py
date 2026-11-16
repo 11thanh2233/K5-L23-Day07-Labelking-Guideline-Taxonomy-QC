@@ -5,6 +5,8 @@ import argparse
 import json
 import random
 import shutil
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
 from common import IMAGES_DIR, QC_DIR, WORK_DIR, digest, die, read_flagged, rel, write_csv
 from drawing import PALETTE, draw_layers
@@ -34,28 +36,37 @@ def main() -> None:
     groups.update({image: "con_lai" if args.n is None else "ngau_nhien" for image in remaining})
     images = sorted(groups)
     counts = {image: sum(obj.cls != tax.ignore for obj in labels.objects[image]) for image in images}
-    sample_path = directory / "qc_sample.csv"
-    write_csv(sample_path, SAMPLE_COLUMNS, [
-        {"image": image, "group": groups[image], "so_doi_tuong": counts[image]} for image in images
-    ])
-    write_csv(directory / "qc_review.csv", REVIEW_COLUMNS, [{"image": image} for image in images])
-    shutil.copyfile(LABELS_PATH, directory / "labels_snapshot.json")
-    shutil.copyfile(MANIFEST_PATH, directory / "batch_manifest_snapshot.json")
-    decisions = QC_DIR / "calibration_decisions.csv"
-    shutil.copyfile(decisions, directory / "calibration_decisions_snapshot.csv")
-    metadata = {
-        "round": args.round, "mode": "full" if args.n is None else "demo",
-        "seed": None if args.n is None else args.seed,
-        "labels_sha256": digest(LABELS_PATH), "batch_manifest_sha256": digest(MANIFEST_PATH),
-        "sample_sha256": digest(sample_path),
-        "calibration_decisions_sha256": digest(decisions),
-    }
-    (directory / "review_manifest.json").write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
     out = WORK_DIR / "review" / directory.name
-    out.mkdir(parents=True, exist_ok=True)
-    for image in images:
-        layer = ("final", PALETTE[1], labels.objects[image])
-        draw_layers(IMAGES_DIR / image, [layer], tax, show_id=True, title=image).save(out / f"{image}.png")
+    try:
+        out.mkdir(parents=True, exist_ok=True)
+        for image in images:
+            layer = ("final", PALETTE[1], labels.objects[image])
+            draw_layers(IMAGES_DIR / image, [layer], tax, show_id=True, title=image).save(out / f"{image}.png")
+
+        directory.parent.mkdir(parents=True, exist_ok=True)
+        with TemporaryDirectory(dir=directory.parent) as temporary:
+            staging = Path(temporary)
+            sample_path = staging / "qc_sample.csv"
+            write_csv(sample_path, SAMPLE_COLUMNS, [
+                {"image": image, "group": groups[image], "so_doi_tuong": counts[image]} for image in images
+            ])
+            write_csv(staging / "qc_review.csv", REVIEW_COLUMNS, [{"image": image} for image in images])
+            shutil.copyfile(LABELS_PATH, staging / "labels_snapshot.json")
+            shutil.copyfile(MANIFEST_PATH, staging / "batch_manifest_snapshot.json")
+            decisions = QC_DIR / "calibration_decisions.csv"
+            shutil.copyfile(decisions, staging / "calibration_decisions_snapshot.csv")
+            metadata = {
+                "round": args.round, "mode": "full" if args.n is None else "demo",
+                "seed": None if args.n is None else args.seed,
+                "labels_sha256": digest(staging / "labels_snapshot.json"),
+                "batch_manifest_sha256": digest(staging / "batch_manifest_snapshot.json"),
+                "sample_sha256": digest(sample_path),
+                "calibration_decisions_sha256": digest(staging / "calibration_decisions_snapshot.csv"),
+            }
+            (staging / "review_manifest.json").write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
+            staging.rename(directory)
+    except OSError as exc:
+        die(f"Chưa thể tạo vòng QC {args.round}: {exc}")
     print(f"Vòng {args.round}: {len(images)}/{len(labels.images)} ảnh. Phiếu: {rel(directory / 'qc_review.csv')}.")
     print(f"Đối chiếu ảnh tại {rel(out)} rồi chạy python scripts/qc_report.py --round {args.round}.")
 

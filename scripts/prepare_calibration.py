@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 import shutil
 
-from calibration import calibration_scope, require_iaa
+from calibration import calibration_export_path, calibration_scope, require_iaa
 from common import IMAGES_DIR, QC_DIR, WORK_DIR, digest, die, final_taxonomy_path, rel
 from review_evidence import LABELS_PATH, MANIFEST_PATH
 
@@ -55,7 +55,8 @@ def main() -> None:
             annotation["attributes"].pop("needs_calibration", None)
         output.write_text(json.dumps(draft, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         print("Có thể nạp nhãn nháp từ work/calib/consensus_flagged.json.")
-    print(f"Đã chuẩn bị {len(scope)} ảnh ở work/calib/images/. Xuất COCO sau sửa vào submission/qc/.")
+    print(f"Đã chuẩn bị {len(scope)} ảnh ở work/calib/images/.")
+    print(f"COCO sau sửa: {rel(calibration_export_path(scope))}")
 
 
 if __name__ == "__main__":

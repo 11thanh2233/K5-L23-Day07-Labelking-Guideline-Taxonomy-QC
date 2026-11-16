@@ -297,6 +297,7 @@ def label_errors(labels: LabelFile, tax: Taxonomy) -> List[str]:
         width, height = labels.images[image]
         try:
             with Image.open(IMAGES_DIR / image) as source:
+                source.load()
                 if source.size != (width, height):
                     errors.append(f"{image}: kích thước COCO lệch ảnh gốc.")
         except OSError:

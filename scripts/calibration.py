@@ -1,7 +1,9 @@
 """Bằng chứng đầu vào và phạm vi ảnh cần sửa theo quyết định calibration."""
 from __future__ import annotations
 
+import hashlib
 import json
+from pathlib import Path
 
 from common import (FINAL_GUIDELINE_PATH, QC_DIR, ROOT, digest, die, final_taxonomy_path,
                     input_hashes, load_taxonomy, read_csv, read_flagged, require_assignment, write_csv)
@@ -13,6 +15,20 @@ DECISION_COLUMNS = [
     "case_id", "image", "quyet_dinh", "quy_tac_ghi_vao_guideline",
     "phien_ban_guideline", "nguoi_chot", "phieu_sua", "kiem_lai", "pham_vi",
 ]
+
+
+def calibration_export_path(scope) -> Path:
+    """Derive the handoff filename from the inputs reviewed for this correction."""
+    inputs = {
+        "iaa": digest(QC_DIR / "iaa_summary.json"),
+        "decisions": digest(QC_DIR / "calibration_decisions.csv"),
+        "guideline": digest(FINAL_GUIDELINE_PATH),
+        "guideline_change": digest(GUIDELINE_CHANGE_PATH),
+        "taxonomy": digest(final_taxonomy_path()),
+        "images": sorted(scope),
+    }
+    revision = hashlib.sha256(json.dumps(inputs, sort_keys=True).encode("utf-8")).hexdigest()[:16]
+    return QC_DIR / f"labels_calibrated_{revision}.json"
 
 
 def require_iaa() -> dict:
