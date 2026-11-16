@@ -18,6 +18,6 @@ Trong **Actions → Export task dataset**, chọn **COCO 1.0**, bỏ chọn tả
 1. Sau khi điền quyết định, chạy `python scripts/prepare_calibration.py`. Tạo Task từ `work/calib/images/`. Nếu taxonomy đổi, tạo Project từ `cvat/labels_final.json` do `make_cvat_labels.py --final` sinh ra.
 2. Nếu script tạo `work/calib/consensus_flagged.json`, dùng **Actions → Upload annotations → COCO 1.0**. Nếu schema không còn tương thích, áp dụng mapping hoặc gán lại theo quyết định rồi xuất COCO.
 3. Nếu instance có Review mode, mở issue trên box hoặc vùng ảnh. Ghi mã ca, mã quy tắc, cách sửa và kết quả reviewer kiểm lại. Dùng ảnh chồng box và CSV nếu thiếu quyền Review.
-4. Xuất COCO 1.0 vào `submission/qc/labels_calibrated_flagged.json`. Giữ cùng tên ảnh. Nếu xuất thiếu thuộc tính, kiểm cấu hình Project và lưu lại box trước khi xuất.
+4. Xuất COCO 1.0 và lưu theo đường dẫn có mã phiên bản mà `prepare_calibration.py` in ra. Giữ cùng tên ảnh. Nếu xuất thiếu thuộc tính, kiểm cấu hình Project và lưu lại box trước khi xuất.
 
 [Tài liệu COCO của CVAT](https://docs.cvat.ai/docs/manual/advanced/formats/format-coco/) · [Manual QA](https://docs.cvat.ai/docs/qa-analytics/manual-qa/)

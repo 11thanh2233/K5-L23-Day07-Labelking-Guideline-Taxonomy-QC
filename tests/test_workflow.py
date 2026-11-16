@@ -1,6 +1,7 @@
 import csv
 import json
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -195,10 +196,16 @@ class WorkflowTest(unittest.TestCase):
         self.run_script("build_final", success=False)
         decision = ["Q01", self.names[0], "Rà cả lô", "R-01", "v1.1", "103", "CVAT #2", "đã xác nhận", "lo"]
         self.write_csv(self.qc / "calibration_decisions.csv", self.decision_fields(), [decision])
-        self.coco(self.qc / "labels_calibrated_flagged.json", names=self.names[:1])
+        target = self.prepare_export()
+        self.coco(target, names=self.names[:1])
         self.run_script("build_final", success=False)
-        self.coco(self.qc / "labels_calibrated_flagged.json")
+        self.coco(target)
         self.run_script("build_final")
+
+    def prepare_export(self):
+        output = self.run_script("prepare_calibration")
+        prefix = "COCO sau sửa: "
+        return self.root / next(line[len(prefix):] for line in output.splitlines() if line.startswith(prefix))
 
     def decision_fields(self):
         return ["case_id", "image", "quyet_dinh", "quy_tac_ghi_vao_guideline", "phien_ban_guideline",
@@ -213,7 +220,7 @@ class WorkflowTest(unittest.TestCase):
         original_result = (first / "qc_result.json").read_bytes()
         decision = ["Q01", self.names[0], "Thêm box", "R-01", "v1.1", "103", "vòng 1", "đã xác nhận", "anh"]
         self.write_csv(self.qc / "calibration_decisions.csv", self.decision_fields(), [decision])
-        self.coco(self.qc / "labels_calibrated_flagged.json", names=self.names[:1], bbox=[2, 1, 20, 60])
+        self.coco(self.prepare_export(), names=self.names[:1], bbox=[2, 1, 20, 60])
         self.run_script("build_final")
         final = json.loads((self.qc / "labels_calibrated.json").read_text())
         self.assertEqual(final["annotations"][0]["bbox"][0], 2)
@@ -253,9 +260,58 @@ class WorkflowTest(unittest.TestCase):
         self.assertIn("**RELEASE**", self.run_script("qc_report"))
         report = self.qc / "QC_REPORT.md"
         report.write_text("- Vòng QC: 1\n- Quyết định: Release\n", encoding="utf-8")
-        self.run_script("check_submission")
-        report.write_text("- Vòng QC: 1\n- Quyết định: Hold\n", encoding="utf-8")
         self.run_script("check_submission", success=False)
+        template = (SOURCE / "docs" / "QC_REPORT_TEMPLATE.md").read_text(encoding="utf-8")
+        complete = re.sub(r"<<[^>]*>>", "Bằng chứng thử nghiệm", template.replace(
+            "<<số nguyên, ví dụ 1>>", "1").replace("<<Release hoặc Hold hoặc Rework>>", "Release"))
+        report.write_text(complete, encoding="utf-8")
+        self.run_script("check_submission")
+        report.write_text(complete.replace("- Quyết định: Release", "- Quyết định: Hold"), encoding="utf-8")
+        self.run_script("check_submission", success=False)
+
+    def test_revised_decision_rejects_previous_export_for_same_scope(self):
+        self.clean_lot()
+        decision = ["Q01", self.names[0], "x=2", "R-01", "v1.1", "103", "CVAT #2", "đã xác nhận", "anh"]
+        table = self.qc / "calibration_decisions.csv"
+        self.write_csv(table, self.decision_fields(), [decision])
+        old = self.prepare_export()
+        self.coco(old, names=self.names[:1], bbox=[2, 1, 20, 60])
+        self.run_script("build_final")
+        decision[2] = "x=10"
+        self.write_csv(table, self.decision_fields(), [decision])
+        current = self.prepare_export()
+        self.assertNotEqual(old, current)
+        self.run_script("build_final", success=False)
+        self.run_script("build_final", "--calibrated", str(old), success=False)
+        current.write_bytes(old.read_bytes())
+        self.run_script("build_final")
+        (self.sub / "guidelines" / "guideline_v1.1_calibrated.md").write_text("R-01 updated", encoding="utf-8")
+        self.assertNotEqual(current, self.prepare_export())
+        self.run_script("build_final", success=False)
+
+    def test_qc_rejects_corrupt_image_without_leaving_round(self):
+        self.clean_lot()
+        image = self.images / self.names[0]
+        original = image.read_bytes()
+        image.write_bytes(original[:-25])
+        self.run_script("qc_compare", success=False)
+        self.run_script("qc_sample", success=False)
+        self.assertFalse((self.qc / "reviews" / "round-01").exists())
+        image.write_bytes(original)
+        self.run_script("qc_sample")
+        self.assertTrue((self.qc / "reviews" / "round-01" / "review_manifest.json").exists())
+
+    def test_qc_overlay_failure_can_retry_same_round(self):
+        self.clean_lot()
+        blocked = self.root / "work" / "review" / "round-01"
+        blocked.mkdir(parents=True)
+        overlay = blocked / f"{self.names[0]}.png"
+        overlay.mkdir()
+        self.run_script("qc_sample", success=False)
+        self.assertFalse((self.qc / "reviews" / "round-01").exists())
+        overlay.rmdir()
+        self.run_script("qc_sample")
+        self.assertTrue(overlay.is_file())
 
     def test_changed_iaa_cannot_reuse_old_calibration_decisions(self):
         self.compare()
