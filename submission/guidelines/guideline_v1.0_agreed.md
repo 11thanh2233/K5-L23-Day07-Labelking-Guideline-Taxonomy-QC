@@ -26,7 +26,7 @@ Mô hình phát hiện người và phương tiện trên ảnh đường phố 
 | `car` | Ô tô con, xe du lịch, SUV, xe cá nhân có thân riêng và hình dạng rõ như ô tô. | sedan, SUV, hatchback, taxi | `truck` nếu là xe tải / xe chở hàng lớn hơn; `van` nếu là xe thùng kín cỡ nhỏ |
 | `truck` | Xe tải, xe chở hàng, xe chở xe hoặc phương tiện có thùng / cabin riêng lớn hơn xe con. | xe tải, xe chở xe | `car` nếu là xe con thường; `van` nếu kích thước nhỏ hơn rõ rệt |
 | `van` | Xe thùng kín cỡ nhỏ / chuyên vận chuyển nhỏ. | van chở hàng cỡ nhỏ, xe thùng mini | `truck` nếu lớn hơn nhiều; `car` nếu là xe con thường |
-| `motorcycle` | Xe máy, mô tô, các loại xe 2 bánh. | xe máy, mô tô | `person` nếu chỉ là người, không có phương tiện |
+| `motorcycle` | Xe máy, mô tô, các loại xe 2 bánh. | xe máy, mô tô, xe đạp | `person` nếu chỉ là người, không có phương tiện |
 | `person` | Người đi bộ hoặc người trên phương tiện, chỉ gán khi phần thân người còn rõ và có thể nhận diện được. | người đi bộ, người ngồi trên xe máy | `motorcycle` nếu chỉ là phương tiện, không thấy người |
 | `ignore_region` | Vùng không cần gán từng vật: phản xạ, mô hình, đồ chơi, biển quảng cáo, vật quá nhỏ, khu vực dày đặc không tách được rõ. | mô hình ô tô trong cửa hàng, vật quá nhỏ, phản xạ | đối tượng thật trên đường phố |
 
