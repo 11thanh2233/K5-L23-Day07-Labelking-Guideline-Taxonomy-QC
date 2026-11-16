@@ -1,0 +1,9 @@
+image,annotator,region,note
+img_004.jpg,103,"80,85,854,584","Hai tuk-tuk (xe 3 bánh có mui): không gán; 2 người lái ở khoang hở gán person. v1.0 chưa có lớp/quy tắc cho loại xe này; tôi không gán theo câu 'vật không thuộc lớp nào thì không gán', cần nhóm chốt"
+img_009.jpg,103,"357,369,666,494","Minibus/coach cửa kiểu xe buýt: không gán (không coi là van); hành khách sau kính không gán. v1.0 chưa có lớp/quy tắc cho loại xe này; tôi không gán theo câu 'vật không thuộc lớp nào thì không gán', cần nhóm chốt"
+img_011.jpg,103,"0,430,612,640","Dãy xe máy trang trí kim loại: không chắc là xe chạy được hay tác phẩm trưng bày, để ignore_region. Cần reviewer chốt"
+img_016.jpg,103,"0,300,190,680","Tuk-tuk xanh bên trái: không gán; người lái gán person. v1.0 chưa có lớp/quy tắc cho loại xe này; tôi không gán theo câu 'vật không thuộc lớp nào thì không gán', cần nhóm chốt"
+img_016.jpg,103,"649,312,960,677","Tuk-tuk xanh lá bên phải: không gán; hành khách thấy được gán person. v1.0 chưa có lớp/quy tắc cho loại xe này; tôi không gán theo câu 'vật không thuộc lớp nào thì không gán', cần nhóm chốt"
+img_031.jpg,103,"570,315,685,434","Xe buýt: không gán. v1.0 chưa có lớp/quy tắc cho loại xe này; tôi không gán theo câu 'vật không thuộc lớp nào thì không gán', cần nhóm chốt"
+img_035.jpg,103,"378,184,843,414","Hai auto-rickshaw (xe 3 bánh): không gán; người lái sau kính chắn gió không gán. v1.0 chưa có lớp/quy tắc cho loại xe này; tôi không gán theo câu 'vật không thuộc lớp nào thì không gán', cần nhóm chốt"
+img_040.jpg,103,"0,3,762,406","Xe buýt và 2 tuk-tuk ở nền: không gán; hành khách tuk-tuk thấy được gán person (can_review). v1.0 chưa có lớp/quy tắc cho loại xe này; tôi không gán theo câu 'vật không thuộc lớp nào thì không gán', cần nhóm chốt"

@@ -1,96 +1,118 @@
-# Guideline Người 3 — QC Lead
+# Guideline gán nhãn — v0.1 (cá nhân) — 103
 
-Xương sống: `team_dashboard.html` (Người 3 = IAA, disagreement, calibration, QC, báo cáo).
-Thay `<mã>` bằng mã của bạn. Chạy lệnh từ thư mục gốc repo.
+- Phiên bản: v0.1-103 (bản cá nhân Pha 1, viết độc lập, chưa xem bản của 101/102)
+- Ngày: 2026-11-16
+- Người viết / duyệt: 103 (soạn có hỗ trợ AI theo quy tắc lớp đã cập nhật; 103 xem lại từng ảnh được dẫn)
+- Phạm vi: 40 ảnh `data/images/img_001.jpg` … `img_040.jpg`, box 2D, CVAT → COCO 1.0
 
-## A. Việc chung (mọi thành viên)
+## 1. Mục tiêu
 
-| # | Việc | Lệnh / file | Xong khi |
+Nhãn dùng huấn luyện mô hình **phát hiện người và phương tiện cơ giới đang tham gia giao thông** trên ảnh 2D (camera giao thông / hỗ trợ lái).
+
+- Nguy hiểm nhất là **bỏ sót người thật** (nhất là người đi xe máy, người đi bộ băng qua đường) → ưu tiên recall cho `person` và `motorcycle`.
+- Nguy hiểm thứ hai là **dạy mô hình báo động giả** với vật không phải người/xe thật: tượng, ma-nơ-canh, ảnh trên biển quảng cáo, đồ chơi, ảnh phản chiếu → những vật này **không gán**.
+- Box sai lớp giữa `car` / `van` / `truck` ít nguy hiểm hơn bỏ sót, nhưng làm giảm IAA → cần định nghĩa ranh giới rõ (mục 2).
+
+## 2. Lớp và thuộc tính
+
+### Lớp
+
+| Lớp | Định nghĩa (một câu) | Ví dụ | Phản ví dụ / dễ nhầm với |
 |---|---|---|---|
-| 1 | Đọc guideline v0 + quy tắc lab | `guideline/guideline_v0_starter.md`, `RULES.md` | Nắm được 5 lớp và 3 thuộc tính |
-| 2 | Viết guideline cá nhân (độc lập) | `submission/guidelines/individual/guideline_<mã>.md` | Đủ 5 mục, mỗi ca khó có `img_0xx` |
-| 3 | Kiểm ảnh được giao | `work/<mã>/images/`, `submission/qc/assignments/<mã>.txt` | Số ảnh khớp danh sách |
-| 4 | Gán nhãn độc lập trên Task CVAT của mình | CVAT, guideline v1.0 | Không xem nhãn người khác |
-| 5 | Lưu sau mỗi ảnh, kiểm lại box | CVAT `Save` | Box ôm sát phần nhìn thấy |
-| 6 | Export COCO 1.0 | `submission/labels/<mã>.json` | Ảnh không có vật vẫn có mặt |
-| 7 | Validate file của mình | `python scripts/validate_labels.py submission/labels/<mã>.json` | Không báo lỗi |
-| 8 | Ghi ca khó / `can_review` / `ignore_region` | tick `can_review`; `submission/qc/image_issues.csv` | Mỗi ca có ảnh, vùng, lý do |
-| 9 | Ghi chú cá nhân | `submission/individual_notes/<mã>.md` | Đủ 6 mục theo mẫu |
+| `car` | Xe ô tô chở người cỡ nhỏ, khoang hành khách liền thân, ≤ 9 chỗ: sedan, hatchback, SUV, wagon, taxi. | img_015 (xe đỏ, xe bạc), img_023 (sedan đen), img_024 (wagon đen + xe vàng), img_040 (taxi xanh) | Pickup có thùng hở → `truck`; xe khách / minibus nhiều hàng ghế → không gán (R-07) |
+| `truck` | Xe chở hàng có **cabin tách khỏi thùng/sàn hàng**: pickup, xe tải thùng, xe tải bạt, đầu kéo + rơ-moóc. | img_001 (pickup Suzuki), img_002 (xe chở ô tô), img_007 (Hilux + Isuzu thùng), img_012, img_028, img_036, img_037 | Van kín liền khối → `van`; pickup có nắp thùng kín (img_037) vẫn là `truck` vì cabin tách thùng |
+| `van` | Xe thùng kín **liền một khối** từ đầu đến đuôi, cỡ nhỏ, cửa trượt hông hoặc cửa sau (kiểu Toyota Hiace, Ford Transit). | img_005 (van bạc 51LD), img_016 (van trắng bên phải) | Minibus/coach có cửa lên xuống kiểu xe buýt (img_009) → không gán (R-07) |
+| `motorcycle` | Xe hai bánh có động cơ: xe máy, xe tay ga, mô tô; xe có thùng/sidecar gắn kèm tính là **một** xe máy. | img_005, img_006, img_010, img_021, img_026, img_030, img_016 (Vespa), img_022 (có sidecar) | Xe đạp, xích lô, tuk-tuk, xe ba bánh chở hàng → không gán (R-07) |
+| `person` | Người thật nhìn thấy được, mọi tư thế: đi bộ, đứng, ngồi, người lái/người ngồi sau xe máy, người đạp xe/xích lô. | img_001, img_014, img_026 (2 người trên 1 xe), img_034, img_032 | Tượng (img_017), ma-nơ-canh (img_033), ảnh người trên biển/tranh (img_018, img_026 nền, img_030 poster) → không gán (R-06) |
+| `ignore_region` | Vùng có nhiều người/xe thật nhưng **không tách được từng cá thể** hoặc quá nhỏ; bỏ sót trong vùng này không tính lỗi. | img_021 (dòng xe máy phía xa), img_030 (bãi xe phía sau) | Không dùng để "che" vật thuộc lớp rõ ràng mà mình ngại vẽ |
 
-## B. Việc riêng Người 3
+**Vật không thuộc lớp nào** (xe buýt, minibus/coach, tuk-tuk, xích lô, xe đạp, auto-rickshaw, động vật, đồ vật): **không gán box, không vẽ ignore_region**. Người ngồi/lái trên các xe đó vẫn gán `person` nếu thấy được (R-07). Nếu không chắc vật có thuộc lớp hay không → gán theo lớp gần nhất và tick `can_review`.
 
-Chỉ làm khi **cả nhóm đã nộp nhãn** (hết Pha 3).
+### Thuộc tính
 
-### B1. Validate toàn bộ + đo IAA (Pha 4)
-```bash
-python scripts/validate_labels.py --all
-python scripts/qc_compare.py
-```
-- Xong khi: lượt gán đủ `x/x`, có `submission/qc/iaa_summary.md`.
-
-### B2. Đọc `iaa_summary.md`
-- Ghi 3 số **kèm mẫu số**: IoU TB (ngưỡng ≥ 0.85), % cùng lớp (≥ 95%), số cặp box ghép.
-- Ghi cặp người gán nào **CHƯA ĐẠT**.
-- IoU và % cùng lớp chỉ tính trên các cặp box đã ghép. Box chưa ghép thống kê riêng.
-
-### B3. Xem ca bất đồng bằng ảnh
-```bash
-python scripts/viz_disagreement.py --images flagged
-```
-- Mở `work/viz/`. Mỗi ca, phân loại:
-  - **Cả hai cùng lệch** → guideline mơ hồ → sửa guideline.
-  - **Một người lệch** → người đó chưa nắm quy tắc → sửa nhãn.
-- Tìm ít nhất **1 ca cả hai giống nhau nhưng cùng sai** (IAA không bắt được).
-
-### B4. Ghi ca cần calibration (Pha 5)
-```bash
-python scripts/build_final.py        # lần 1: sinh calibration_decisions.csv
-```
-- Điền **mỗi ca một dòng**, đủ 9 cột: `quyet_dinh`, `quy_tac_ghi_vao_guideline` (R-xx), `phien_ban_guideline` (v1.1), `nguoi_chot`, `phieu_sua`, `kiem_lai`, `pham_vi` (`anh` | `lo`).
-- Phối hợp Người 2: Người 2 viết `guideline_v1.1_calibrated.md` + `submission/guideline_change.json` (`editorial` | `semantic`; `semantic` cần ≥ 1 dòng `lo`).
-```bash
-python scripts/prepare_calibration.py   # in ra đường dẫn labels_calibrated_<phiên-bản>.json
-# sửa nhãn trên CVAT, export đúng đường dẫn đó
-python scripts/build_final.py           # lần 2: labels_calibrated.json/.csv, batch_manifest.json
-```
-
-### B5. Duyệt QC (Pha 6)
-```bash
-python scripts/qc_sample.py --round 1
-```
-- Mở `work/review/round-01/`, điền `submission/qc/reviews/round-01/qc_review.csv`:
-  - Ảnh sạch: `error_type=khong`, `reviewer`.
-  - Lỗi box: `object_id`, `error_type` (`thua` | `sai_lop` | `sai_vi_tri_kich_thuoc` | `sai_thuoc_tinh`), `rule_id`, `note`.
-  - Bỏ sót: `error_type=bo_sot`, để trống `object_id`, ghi `region`.
-- Duyệt **toàn lô**. Người kiểm khác người sửa.
-```bash
-python scripts/qc_report.py --round 1
-```
-
-### B6. Chốt Hold / Rework / Release
-| Kết quả | Khi nào | Làm tiếp |
+| Thuộc tính | Mức | Nghĩa và ngưỡng đo |
 |---|---|---|
-| Hold | thiếu bằng chứng, guideline chưa chốt | ghi phần thiếu |
-| Rework | > 2% ảnh lỗi hoặc lỗi lặp | thêm ca `Q01…` vào bảng quyết định → làm lại B4 → `--round 2` (giữ vòng 1) |
-| Release | đạt ngưỡng, người kiểm xác nhận | viết báo cáo |
+| `occluded_level` | `0` | Bị che **< 10%** diện tích ước lượng của vật. |
+| | `1` | Bị che **10% – < 40%**. |
+| | `2` | Bị che **40% – 80%**. |
+| | `3` | Bị che **> 80%**, hoặc không ước lượng được phần bị che (quá tối, mờ do chuyển động mạnh). |
+| `truncated` | `no` | Toàn bộ vật nằm trong khung ảnh. |
+| | `yes` | Một phần vật **ra ngoài mép ảnh** (box chạm mép và vật rõ ràng còn tiếp). Phần ngoài mép **không** tính vào `occluded_level`. |
+| `can_review` | tick | Không chắc lớp, không chắc vật có phải thật, hoặc không chắc ranh giới box. Ghi lý do trong `image_issues.csv` nếu là vấn đề cấp ảnh. |
 
-## C. Báo cáo và bàn giao (Người 3 viết, Người 1 nộp)
+Ghi chú đo che khuất:
+- Che bởi **vật khác trong ảnh** (người, xe khác, cột, hàng hóa) mới tính. Phần ra ngoài mép ảnh chỉ tính vào `truncated`.
+- Hàng rào song thưa / lưới (img_018): chỉ tính phần bị che thật sự; tối đa `1` nếu vẫn nhìn rõ hình dạng xe qua song.
+- Người ngồi trên xe máy che một phần xe: tính như che bình thường cho box `motorcycle`.
 
-1. Copy `docs/QC_REPORT_TEMPLATE.md` → `submission/qc/QC_REPORT.md`. Điền đủ 10 trường bắt buộc, tỉ lệ lỗi **theo ảnh và theo đối tượng, kèm mẫu số**.
-2. Điền mục "Kết quả tóm tắt" trong `TEAM.md`.
-3. Kiểm:
-   ```bash
-   python scripts/check_submission.py --round <vòng-cuối>
-   ```
-   Xong khi: `0 lỗi`. Gửi Người 1 nộp.
+## 3. Quy tắc vẽ box
 
-## D. Checklist nhanh Người 3
+- **R-01 — Ôm sát phần nhìn thấy.** Box ôm sát pixel nhìn thấy của vật (sai số ≤ 2–3 px). Không ước lượng phần bị che phía sau vật khác. Gương chiếu hậu, ăng-ten mảnh không cần đưa vào nếu làm box rộng thêm rõ rệt.
+- **R-02 — Người và xe máy là hai loại box riêng.** Mỗi xe máy một box `motorcycle` (ôm thân xe + bánh + phần người che không làm thay đổi ranh giới xe). Mỗi người trên xe một box `person` riêng (lái và ngồi sau, kể cả trẻ em). Box `person` gồm mũ bảo hiểm và phần thân/chân nhìn thấy, kể cả phần chồng lên xe. Thử trên img_026: 1 `motorcycle` + 2 `person`; img_010 xe giữa: 1 `motorcycle` + 2 `person`.
+- **R-03 — Hàng hóa không thuộc box.** Hàng chở trên xe máy (ống dài img_029, sọt, túi) hoặc đồ người mang (quang gánh img_003, túi xách) **không** mở rộng box `motorcycle`/`person`. Hàng hóa che xe → tính vào `occluded_level`. Riêng `truck`: hàng trong thùng nằm trong box vì box ôm thân xe.
+- **R-04 — Vật bị cắt mép ảnh.** Vẽ đến mép ảnh, đặt `truncated=yes`. Ví dụ: img_015 xe đỏ và xe bạc, img_040 taxi và người đội mũ.
+- **R-05 — Vật quá nhỏ.** Vật có chiều cao box **< 20 px** (theo `min_box_height_px` trong taxonomy) không gán từng box. Nếu có cụm ≥ 3 vật nhỏ như vậy liền nhau → một `ignore_region` bao cụm. Vật ≥ 20 px nhưng thấy rõ thì phải gán.
+- **R-06 — Không phải vật thật thì không gán.** Tượng, ma-nơ-canh, đồ chơi, mô hình, bia mộ hình xe, ảnh in / biển quảng cáo / tranh tường, **ảnh phản chiếu** trong gương, kính, mặt đường ướt: không gán, không vẽ ignore_region.
+- **R-07 — Phương tiện ngoài taxonomy.** Xe buýt, minibus/coach, tuk-tuk, xích lô, xe đạp, auto-rickshaw: không gán box. Người trên các xe này vẫn gán `person` nếu thấy được thân người (không sau kính kín).
+- **R-08 — Người trong xe.** Người ngồi sau kính kín của ô tô/van/truck/xe buýt: **không** gán. Người ở khoang hở nhìn rõ (lái tuk-tuk img_004, lái xe diễu hành img_019): gán `person`.
+- **R-09 — Xe chủ (ego).** Phần xe của người chụp (khung gương, cửa, nắp capo trong img_020): không gán.
+- **R-10 — Xe chở xe.** Đầu kéo + rơ-moóc chở xe là **một** box `truck` bao cả cabin và giàn chở (img_002). Mỗi ô tô thật đặt trên giàn gán `car` riêng, che khuất theo giàn sắt. Ô tô đặt trên nóc ô tô khác (img_024): cả hai đều gán `car`.
+- **R-11 — Đám đông / bãi xe dày.** Gán từng người/xe khi tách được ranh giới (thấy đầu + vai với người, thấy bánh hoặc yên + đầu xe với xe máy). Phần phía sau không tách được → một `ignore_region` (img_021 phía xa, img_030 hàng sau, img_019 khán giả phía sau rào nếu quá dày).
+- **R-12 — Mờ do chuyển động.** Gán nếu nhận ra được lớp; box ôm vùng thân vật rõ nhất, không ôm hết vệt mờ; `occluded_level=3` nếu không ước lượng được biên, kèm `can_review` (img_014 người đi xe máy mờ, img_015 xe mờ phía sau).
 
-- [ ] `validate_labels.py --all` sạch, `qc_compare.py` chạy xong
-- [ ] Đọc `iaa_summary.md`, ghi số kèm mẫu số
-- [ ] `viz_disagreement.py --images flagged`, phân loại ca lệch, có 1 ca "cùng sai"
-- [ ] `calibration_decisions.csv`: mỗi ca một dòng, đủ 9 cột
-- [ ] `labels_calibrated.json` + `batch_manifest.json`
-- [ ] `qc_review.csv` đủ 40/40 ảnh, `qc_report.py` chạy xong
-- [ ] Quyết định Hold / Rework / Release có lý do
-- [ ] `QC_REPORT.md` + `TEAM.md` + `check_submission.py` 0 lỗi
+## 4. Ca khó
+
+Phân biệt: **[QT]** = loại/quyết theo quy tắc ở trên; **[HỎI]** = cần reviewer/nhóm chốt ở Pha 2.
+
+| Ảnh | Tình huống | Rule ID | Quyết định | Lý do |
+|---|---|---|---|---|
+| img_002 | Xe đầu kéo chở 7–8 ô tô trên giàn 2 tầng | R-10 | [HỎI] 1 `truck` (cabin + giàn) + mỗi ô tô một `car`, occluded theo giàn | Ô tô là vật thật, mô hình nên nhận ra; nhưng nhóm có thể muốn coi là hàng hóa → cần chốt chung |
+| img_024 | Xe vàng đặt trên nóc wagon đen, trong bảo tàng | R-10 | [QT] Cả hai `car` | Đều là ô tô thật, không phải mô hình |
+| img_017 | Tượng người cưỡi ngựa đội nón giao thông, có chim mòng biển | R-06 | [QT] Không gán gì, ảnh vẫn có trong COCO | Tượng không phải người thật |
+| img_033 | Ma-nơ-canh trong tủ kính, phản chiếu xe tải trên kính | R-06 | [QT] Không gán | Ma-nơ-canh + ảnh phản chiếu |
+| img_018 | Ảnh người trên biển bầu cử; ô tô sau hàng rào | R-06, R-01 | [QT] Không gán người trên biển; gán từng `car` sau rào, occluded tối đa 1 | Người in trên biển không phải người thật |
+| img_020 | Gương chiếu hậu phản chiếu đường, xe, cầu vồng | R-06, R-09 | [QT] Không gán gì | Toàn bộ là ảnh phản chiếu + xe chủ |
+| img_027 | Bia mộ hình xe bán tải bằng đá | R-06 | [QT] Không gán | Không phải xe thật |
+| img_028 | Tượng ngựa đứng trên thùng pickup cổ thật | R-06, R-03 | [QT] 1 `truck`, tượng ngựa không gán; ô tô đỏ phía sau gán `car` | Pickup thật; ngựa là tượng |
+| img_038 | Tủ kính đồ chơi, mô hình ô tô | R-06 | [QT] Không gán | Mô hình đồ chơi |
+| img_011 | Tượng/trang phục "Predator" và các xe máy trang trí bằng kim loại | R-06 | [HỎI] Tượng không gán; xe máy kim loại gán `motorcycle` + `can_review` | Không chắc các xe là xe chạy được hay tác phẩm điêu khắc |
+| img_019 | Xe diễu hành hình ô tô (có biển số), người lái + linh vật chuột; khán giả đông sau rào | R-08, R-06, R-11 | [HỎI] Xe → `car` + `can_review`; người lái `person`; linh vật không gán; khán giả tách được thì gán, phần dày → `ignore_region` | Xe có biển số, chạy trên đường nhưng hình dáng là mô hình |
+| img_026 | Đôi nam nữ trên xe máy; tranh tường cảng biển phía sau | R-02, R-06 | [QT] 1 `motorcycle` + 2 `person`; tranh không gán | Đúng ca chuẩn người đi xe máy |
+| img_029 | Người đi xe máy vác ống dài, người đi xe đạp bên cạnh | R-03, R-07 | [QT] `motorcycle` không gồm ống; 2 `person`; xe đạp không gán | Hàng hóa không thuộc box; xe đạp ngoài taxonomy |
+| img_003 | Người gánh quang gánh, xe đạp, xe máy | R-03, R-07 | [QT] `person` không gồm quang gánh; xe đạp không gán | Đồ mang theo không thuộc box |
+| img_022 | Ảnh đen trắng cũ: xe máy có sidecar trên đường rừng | R-02 | [QT] 1 `motorcycle` bao cả sidecar + 1 `person` | Sidecar gắn liền, coi là một xe |
+| img_004 | Hai tuk-tuk có người lái | R-07, R-08 | [HỎI] Tuk-tuk không gán; người lái thấy rõ → `person` | Tuk-tuk là xe 3 bánh có mui, không khớp lớp nào; cần nhóm chốt có thêm lớp hay không |
+| img_016 | Tuk-tuk, xe tay ga Vespa, van trắng, người phụ nữ cắt mép dưới | R-07, R-04 | [QT] Vespa `motorcycle`; van `van`; tuk-tuk không gán; người phụ nữ `person`, `truncated=yes` | |
+| img_035 | Auto-rickshaw chở hàng cao, xe máy, ô tô | R-07, R-03 | [QT] Auto-rickshaw không gán; xe máy + người gán; ô tô trắng `car` | |
+| img_023 | Xích lô đi giữa đường, sedan đen | R-07 | [QT] Xích lô không gán, người đạp xích lô `person`, sedan `car` | |
+| img_009 | Minibus/coach trắng, cửa kiểu xe buýt | R-07 | [HỎI] Không gán (coi là xe buýt) | Ranh giới van ↔ minibus cần nhóm chốt |
+| img_037 | Pickup có nắp thùng kín cao | R-01 | [QT] `truck` | Cabin tách thùng, không phải van liền khối |
+| img_021 | Dòng xe máy rất dày, phía xa nhỏ dần | R-11, R-05 | [QT] Gán từng xe/người phía trước; phía xa → `ignore_region` | Không tách được cá thể |
+| img_030 | Bãi xe máy dày, xe chồng lên nhau | R-11 | [QT] Gán từng xe hàng trước; hàng sau → `ignore_region` | |
+| img_032 | Hàng người chờ xe buýt (~40 người), xe hơi cắt mép trái | R-11, R-04 | [HỎI] Gán từng người tách được; cụm chồng lấn → `ignore_region`; xe trái `car`, `truncated=yes` | Số box lớn, dễ lệch IAA → cần chốt ngưỡng "tách được" |
+| img_014 | Người đi bộ rõ nét, người đi xe máy mờ chuyển động | R-12 | [QT] 2 người đi bộ `person` occluded 0; xe/người mờ gán nếu nhận ra, `can_review` | |
+| img_031 | Đêm mưa, phản chiếu đèn và xe trên mặt đường | R-06 | [QT] Không gán phản chiếu trên mặt đường | |
+| img_040 | Người đội mũ cận cảnh, taxi, tuk-tuk, xe buýt nền | R-04, R-07 | [QT] `person` + `car` taxi `truncated=yes`; tuk-tuk/xe buýt không gán | |
+
+Ca chưa chốt khi gán: tick `can_review` trên box hoặc ghi `submission/qc/image_issues.csv` (cột `image,annotator,region,note`).
+
+## 5. QC và phiên bản
+
+Ngưỡng QC (giữ nguyên mục `rules` trong `taxonomy.json`):
+
+| Chỉ số | Ngưỡng |
+|---|---|
+| Chiều cao box tối thiểu | 20 px |
+| IoU ghép cặp khi so sánh | ≥ 0.5 |
+| IAA — IoU trung bình các cặp ghép | ≥ 0.85 |
+| IAA — % cùng lớp trên các cặp ghép | ≥ 95% |
+| IoU chấp nhận khi QC: vật lớn (> 50 px) / vật nhỏ | ≥ 0.85 / ≥ 0.7 |
+| Tỉ lệ ảnh lỗi tối đa để Release | ≤ 2% |
+
+- Ca mơ hồ: người gán tick `can_review`; Guideline Lead (Người 2) và QC Lead (Người 3) chốt ở Pha 2 / Pha 5, ghi vào `calibration_decisions.csv` với mã R-xx.
+- Thay đổi chỉ câu chữ → `editorial`; thay đổi cách chọn vật/lớp/box/thuộc tính → `semantic`, tăng phiên bản và kiểm lại cả lô.
+
+| Phiên bản | Thay đổi | Lý do (ca nào) |
+|---|---|---|
+| v0 | Bản khởi đầu của giảng viên | — |
+| v0.1-103 | Thêm định nghĩa ranh giới car/van/truck, ngưỡng % cho `occluded_level`, quy tắc R-01…R-12, 27 ca khó | img_002, img_004, img_009, img_011, img_019, img_032 (cần chốt nhóm); các ca còn lại quyết theo quy tắc |
