@@ -1,8 +1,8 @@
 # Guideline gán nhãn — v0.1 (cá nhân) — 103
 
-- Phiên bản: v0.1-103 (bản cá nhân Pha 1, viết độc lập, chưa xem bản của 101/102)
+- Phiên bản: v0.1-103
 - Ngày: 2026-11-16
-- Người viết / duyệt: 103 (soạn có hỗ trợ AI theo quy tắc lớp đã cập nhật; 103 xem lại từng ảnh được dẫn)
+- Người viết / duyệt: 103
 - Phạm vi: 40 ảnh `data/images/img_001.jpg` … `img_040.jpg`, box 2D, CVAT → COCO 1.0
 
 ## 1. Mục tiêu
