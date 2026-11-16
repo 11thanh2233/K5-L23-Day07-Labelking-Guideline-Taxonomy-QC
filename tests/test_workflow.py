@@ -113,9 +113,45 @@ class WorkflowTest(unittest.TestCase):
         ])
         self.run_script("qc_compare")
         summary = json.loads((self.qc / "iaa_summary.json").read_text())
-        self.assertEqual(summary["overall"]["n_skipped_in_ignore"], 1)
+        self.assertEqual(summary["overall"]["n_skipped_in_ignore"], 0)
         self.assertIn("bat_dong_ignore", summary["issues_by_type"])
         self.assertEqual((self.qc / "flagged_images.txt").read_text().splitlines(), self.names[:1])
+
+    def test_matched_ignore_regions_do_not_hide_asymmetric_coverage(self):
+        self.assignments()
+        obj = {"id": 3, "image_id": 1, "category_id": 1, "bbox": [25, 35, 10, 20],
+               "attributes": {"occluded_level": "0", "truncated": "no", "can_review": False}}
+        region = {"id": 4, "image_id": 1, "category_id": 2, "bbox": [28, 15, 65, 75]}
+        self.coco(self.sub / "labels" / "101.json", additional=[
+            obj, {**region, "bbox": [38, 15, 60, 75]},
+        ])
+        self.coco(self.sub / "labels" / "102.json", additional=[region])
+        self.run_script("qc_compare")
+        summary = json.loads((self.qc / "iaa_summary.json").read_text())
+        self.assertEqual(summary["overall"]["n_skipped_in_ignore"], 0)
+        self.assertEqual(summary["overall"]["n_unmatched_a"], 1)
+        self.assertIn("bat_dong_ignore", summary["issues_by_type"])
+        self.assertEqual((self.qc / "flagged_images.txt").read_text().splitlines(), self.names[:1])
+        draft = json.loads((self.qc / "consensus_draft.json").read_text())
+        self.assertIn(obj["bbox"], [box["bbox"] for box in draft["annotations"]])
+
+    def test_review_rejects_changed_calibration_snapshot(self):
+        self.clean_lot()
+        self.run_script("qc_sample")
+        self.review()
+        snapshot = self.qc / "reviews" / "round-01" / "calibration_decisions_snapshot.csv"
+        snapshot.write_text("invalid\n")
+        self.assertIn("**HOLD**", self.run_script("qc_report"))
+
+    def test_build_rejects_final_output_as_corrected_input(self):
+        self.clean_lot()
+        self.write_json(self.sub / "guideline_change.json", {"kind": "semantic", "summary": "R-01 đổi box"})
+        decision = ["Q01", self.names[0], "Rà cả lô", "R-01", "v1.1", "103", "CVAT #2", "đã xác nhận", "lo"]
+        self.write_csv(self.qc / "calibration_decisions.csv", self.decision_fields(), [decision])
+        labels = self.qc / "labels_calibrated.json"
+        old_labels = labels.read_bytes()
+        self.run_script("build_final", "--calibrated", str(labels), success=False)
+        self.assertEqual(labels.read_bytes(), old_labels)
 
     def test_calibration_cannot_drop_legacy_class(self):
         self.compare()

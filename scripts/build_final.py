@@ -25,9 +25,12 @@ def main() -> None:
         die("Ảnh đồng thuận không khớp lô đã phân công.")
     corrected = None
     if scope:
-        if not args.calibrated.resolve().is_relative_to(QC_DIR.resolve()):
+        corrected_path = args.calibrated.resolve()
+        if not corrected_path.is_relative_to(QC_DIR.resolve()):
             die("Lưu COCO sau sửa trong submission/qc/ để gói bàn giao có thể mở lại.")
-        corrected = require_valid_labels(args.calibrated, tax)
+        if corrected_path in {(QC_DIR / name).resolve() for name in ("consensus_draft.json", "labels_calibrated.json")}:
+            die("Dùng file export sau sửa riêng, ví dụ labels_calibrated_flagged.json.")
+        corrected = require_valid_labels(corrected_path, tax)
         if set(corrected.images) != scope:
             die(f"COCO sau sửa thiếu {sorted(scope - corrected.images.keys())}, "
                 f"thừa {sorted(corrected.images.keys() - scope)}.")

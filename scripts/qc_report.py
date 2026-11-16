@@ -5,7 +5,7 @@ import argparse
 from collections import Counter, defaultdict
 import json
 
-from common import MEMBER_RE, digest, read_csv
+from common import MEMBER_RE, QC_DIR, digest, read_csv
 from review_evidence import LABELS_PATH, MANIFEST_PATH, current_batch, round_dir
 
 VALID = {"khong", "bo_sot", "thua", "sai_lop", "sai_vi_tri_kich_thuoc", "sai_thuoc_tinh"}
@@ -19,6 +19,8 @@ def checked_round(directory, number):
         ("labels_sha256", LABELS_PATH, directory / "labels_snapshot.json"),
         ("batch_manifest_sha256", MANIFEST_PATH, directory / "batch_manifest_snapshot.json"),
         ("sample_sha256", sample_path, sample_path),
+        ("calibration_decisions_sha256", QC_DIR / "calibration_decisions.csv",
+         directory / "calibration_decisions_snapshot.csv"),
     ):
         if metadata[key] != digest(path) or metadata[key] != digest(snapshot):
             raise ValueError(f"Vòng duyệt và {path.name} không cùng phiên bản. Mở vòng mới.")

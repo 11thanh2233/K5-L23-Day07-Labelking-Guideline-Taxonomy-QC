@@ -121,17 +121,25 @@ def main() -> None:
                     issues.append({**base, "issue_type": "sai_thuoc_tinh", "ghi_chu_tu_dong": d})
             for side, un, mine_ign, other_ign, who, other in (("a", ua, ia, ib, a, b), ("b", ub, ib, ia, b, a)):
                 for o in un:
-                    if covered_by(o.box, other_ign) or covered_by(o.box, mine_ign):
+                    ignored_here = covered_by(o.box, mine_ign)
+                    ignored_there = covered_by(o.box, other_ign)
+                    if ignored_here and ignored_there:
                         for st in (per_pair[key], total):
                             st["skipped_ignore"] += 1
                         continue
                     for st in (per_pair[key], total):
                         st["unmatched_" + side] += 1
+                    asymmetric = ignored_here != ignored_there
+                    note = (
+                        f"Chỉ vùng ignore của {who if ignored_here else other} phủ box của {who}."
+                        if asymmetric else f"Chỉ {who} vẽ {o.cls} này. {other} bỏ sót hoặc {who} vẽ thừa."
+                    )
                     issues.append({
-                        "image": img, "annotators": key, "issue_type": "bo_sot_thua",
-                        "class_a": o.cls if side == "a" else "", "class_b": o.cls if side == "b" else "",
-                        "box_a": fmt_box(o.box) if side == "a" else "", "box_b": fmt_box(o.box) if side == "b" else "",
-                        "iou": "", "ghi_chu_tu_dong": f"chỉ {who} vẽ {o.cls} này; {other} bỏ sót (hoặc {who} vẽ thừa)"})
+                        "image": img, "annotators": key,
+                        "issue_type": "bat_dong_ignore" if asymmetric else "bo_sot_thua",
+                        f"class_{side}": o.cls, f"box_{side}": fmt_box(o.box),
+                        "ghi_chu_tu_dong": note,
+                    })
         # ca có cờ can_review (mỗi đối tượng 1 dòng/ảnh)
         for m in anns:
             for o in files[m].objects[img]:
@@ -180,13 +188,12 @@ def main() -> None:
         cimages.append({"id": iid, "file_name": img, "width": w, "height": h})
         n, maj = len(anns), len(anns) // 2 + 1
         ign = {m: [o.box for o in files[m].objects[img] if o.cls == tax.ignore] for m in anns}
-        all_ign = [b for m in anns for b in ign[m]]
         objs = {m: [o for o in files[m].objects[img] if o.cls != tax.ignore] for m in anns}
         for cl in cluster_objects(objs, r["match_iou"]):
             box = mean_box([o.box for o in cl.values()])
             missing = [m for m in anns if m not in cl]
-            if len(cl) < maj and covered_by(box, all_ign):
-                continue  # vật nhỏ trong vùng ignore, không phải lỗi
+            if len(cl) < maj and all(covered_by(box, ign[member]) for member in anns):
+                continue
             cls_c = Counter(o.cls for o in cl.values())
             cls = sorted(cls_c.items(), key=lambda t: (-t[1], t[0]))[0][0]
             attrs, need = {}, False

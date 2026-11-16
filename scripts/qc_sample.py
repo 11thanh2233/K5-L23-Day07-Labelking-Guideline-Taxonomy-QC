@@ -41,12 +41,14 @@ def main() -> None:
     write_csv(directory / "qc_review.csv", REVIEW_COLUMNS, [{"image": image} for image in images])
     shutil.copyfile(LABELS_PATH, directory / "labels_snapshot.json")
     shutil.copyfile(MANIFEST_PATH, directory / "batch_manifest_snapshot.json")
-    shutil.copyfile(QC_DIR / "calibration_decisions.csv", directory / "calibration_decisions_snapshot.csv")
+    decisions = QC_DIR / "calibration_decisions.csv"
+    shutil.copyfile(decisions, directory / "calibration_decisions_snapshot.csv")
     metadata = {
         "round": args.round, "mode": "full" if args.n is None else "demo",
         "seed": None if args.n is None else args.seed,
         "labels_sha256": digest(LABELS_PATH), "batch_manifest_sha256": digest(MANIFEST_PATH),
         "sample_sha256": digest(sample_path),
+        "calibration_decisions_sha256": digest(decisions),
     }
     (directory / "review_manifest.json").write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
     out = WORK_DIR / "review" / directory.name
