@@ -1,14 +1,11 @@
 # GUIDELINE GÁN NHÃN CÁ NHÂN — v0.1
 
-**Chương trình:** VinUni AI Thực chiến K5 — Level 2 — Day 07  
 **Chủ đề:** Guideline, Taxonomy & Quality Control  
 **Họ tên:** Bùi Anh Dũng  
 **MSSV:** 2A202603033  
-**Vai trò:** Người 2 — Guideline Lead  
+**Vai trò:** 102— Guideline Lead  
 **Nhóm:** Labelking  
 **Ngày:** 16/11/2026  
-**Trạng thái:** Bản đề xuất cá nhân, chờ nhóm thống nhất
-
 ---
 
 ## 1. Mục tiêu
@@ -190,4 +187,3 @@ Cách tính và áp dụng các chỉ số tuân theo script của repository.
 
 ---
 
-**Kết luận:** Guideline v0.1 này là bản đề xuất cá nhân của Bùi Anh Dũng. Các quy tắc mới cần được nhóm Labelking thống nhất trước khi sử dụng làm guideline chính thức cho việc gán nhãn và đánh giá chất lượng.
