@@ -1,0 +1,76 @@
+{
+  "version": "v1.1",
+  "ignore_class": "ignore_region",
+  "classes": [
+    {
+      "name": "car",
+      "definition": "Ô tô chở người có ca-pô, không có thùng hàng tách khỏi cabin: sedan, hatchback, SUV, crossover, MPV, taxi con (R-12)."
+    },
+    {
+      "name": "truck",
+      "definition": "Xe có cabin và thùng chở hàng tách biệt (hở hoặc kín): xe tải, xe bán tải, xe chở xe, xe ben. Ô tô trên thùng xe chở xe gán car riêng nếu tách được (R-03, R-12)."
+    },
+    {
+      "name": "van",
+      "definition": "Xe thân hộp liền một khối, mui cao, tối đa khoảng 16 chỗ: xe thùng chở hàng, minibus kiểu HiAce/Transit (R-12)."
+    },
+    {
+      "name": "bus",
+      "definition": "Xe buýt/xe khách cỡ lớn trên 16 chỗ, thân dài nhiều hàng cửa sổ: xe buýt thành phố, xe khách, xe du lịch, xe hai tầng (R-12)."
+    },
+    {
+      "name": "tuk_tuk",
+      "definition": "Xe ba bánh có động cơ chở khách hoặc hàng: tuk-tuk, xe lam, xe ba gác máy. Người trên xe gán person riêng (R-02, R-12)."
+    },
+    {
+      "name": "motorcycle",
+      "definition": "Xe hai bánh có động cơ: xe máy, xe tay ga, mô tô, xe máy điện, kể cả xe đỗ. Không gồm xe đạp (R-11)."
+    },
+    {
+      "name": "person",
+      "definition": "Người thật đi bộ, đứng, ngồi hoặc ở trên xe hai/ba bánh; không gán tượng, hình in, phản chiếu, người bên trong ô tô/xe buýt (R-05, R-13)."
+    },
+    {
+      "name": "ignore_region",
+      "definition": "Vùng loại khỏi chấm điểm, không phải một vật: cụm từ 3 vật không tách được, cụm vật cao dưới 20 px, phương tiện ngoài taxonomy (xe đạp, xích lô, xe kéo tay), vật giả lớn dễ nhầm (R-10, R-11)."
+    }
+  ],
+  "attributes": [
+    {
+      "name": "occluded_level",
+      "type": "select",
+      "values": [
+        "0",
+        "1",
+        "2",
+        "3"
+      ],
+      "default": "0"
+    },
+    {
+      "name": "truncated",
+      "type": "select",
+      "values": [
+        "no",
+        "yes"
+      ],
+      "default": "no"
+    },
+    {
+      "name": "can_review",
+      "type": "checkbox",
+      "values": [],
+      "default": "false"
+    }
+  ],
+  "rules": {
+    "min_box_height_px": 20,
+    "iou_thr_large": 0.85,
+    "iou_thr_small": 0.7,
+    "large_px": 50,
+    "iaa_iou": 0.85,
+    "iaa_class": 0.95,
+    "error_rate_img_max": 0.02,
+    "match_iou": 0.5
+  }
+}

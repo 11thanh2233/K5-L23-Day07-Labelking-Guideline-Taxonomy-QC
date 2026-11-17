@@ -1,0 +1,4 @@
+{
+  "kind": "semantic",
+  "summary": "v1.1 đổi taxonomy và cách chọn vật/thuộc tính sau IAA chưa đạt (IoU 0.818, cùng lớp 94.1%, cùng occluded_level 45.5%, cùng truncated 58.4%). Taxonomy v1.1 (submission/taxonomy_v1.1.json): thêm lớp bus và tuk_tuk, không bỏ lớp, giữ nguyên rules. Guideline: truncated chỉ theo mép ảnh (R-08); occluded_level chấm theo tỉ lệ bị che với luật phá hòa (R-09); ignore_region chỉ cho cụm không tách được, vật cao dưới 20 px, xe ngoài taxonomy và vật giả lớn (R-10); xe đạp/xích lô/xe kéo tay dùng ignore_region (R-11); cây hỏi phân lớp xe, bán tải là truck (R-12); gán đủ mọi vật hợp lệ từ 20 px (R-13); kiểm lớp sau mỗi box vì CVAT mặc định car (R-14). Cách rà lại: tạo Project CVAT mới từ cvat/labels_final.json, sửa cả lô 40 ảnh, có lượt rà riêng tìm xe ba bánh và xe buýt để đổi sang tuk_tuk/bus, người kiểm lại khác người sửa xác nhận trên toàn lô."
+}
